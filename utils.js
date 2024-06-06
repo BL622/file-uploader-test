@@ -2,7 +2,8 @@ require('dotenv/config')
 const {log} = require('./log.js')
 const crypto = require('crypto')
 const bcrypt = require('bcrypt')
-
+const sharp = require('sharp')
+const fs = require('fs')
 
 class Request{
     constructor(req, res){
@@ -12,6 +13,8 @@ class Request{
         this.body = req.body
         this.headers = req.headers
         this.params = req.params
+        this.profile = req.file
+        this.album = req.files
 
         this.didRespond = false
 
@@ -50,6 +53,35 @@ class Request{
             toReturn[field] = post[field]
         }
         return toReturn
+    }
+
+    async validatePostFiles(options) {
+        const results = {}
+
+        for (const fileKey in options) {
+            const file = this.profile
+
+            if (!file) return results[fileKey] = { error: 'No file uploaded or invalid file type.' }
+
+            const { type, width, height, outputPath } = options[fileKey]
+
+            if (type === 'image') {
+                const validMimeTypes = ['image/jpeg', 'image/jpg', 'image/png']
+                if (!validMimeTypes.includes(file.mimetype)) return results[fileKey] = { error: 'Invalid file type.' }
+
+                const image = sharp(file.buffer)
+                const metadata = await image.metadata()
+
+                if (metadata.width > width || metadata.height > height) return results[fileKey] = { error: 'The image should be maximum 1024x1024' }
+
+                const imagePath = outputPath + this.params.imageName.toLowerCase()
+                if (fs.existsSync(imagePath)) fs.unlink(imagePath, (err) => err !== null ? log(0, err) : "")
+                await image.toFile(imagePath)
+
+                results[fileKey] = { path: imagePath }
+            }
+        }
+        return results
     }
 
     randomHash(length){
