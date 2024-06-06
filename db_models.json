@@ -1,0 +1,86 @@
+{
+    "user":{
+        "_id": "string",
+        "username": ["string", "MAX50", "unique"],
+        "email": "string",
+        "password": "string",
+        "profile_img": "string",
+        "playlists": [
+            {
+                "playlist_id": "object_id"
+            }
+        ],
+        "is_artist": [{
+            "artist_name": "string"
+        }],
+        "token": "string"
+    },
+
+    "album":{
+        "_id": "string",
+        "creators": ["object_id1", "object_id2"],
+        "songs":[
+            {
+                "song_id": "object_id"
+            }
+        ],
+        "cover_img": "string",
+        "created": "date",
+        "title": "string",
+        "subtitle": "string",
+        "description": ["string", "notRequired"],
+        "genre": ["genre1", "genre2"],
+        "like_id": "object_id"
+    },
+
+    "song":{
+        "_id": "string",
+        "album_id": "object_id",
+        "song_number": "number",
+        "title": "string",
+        "length": "duration",
+        "filename": "string",
+        "creators": ["creator1", "creator2"],
+        "comment_id": "object_id",
+        "like_id": "object_id"
+    },
+
+    "playlist":{
+        "_id": "string",
+        "owner": "object_id",
+        "is_public": "boolean",
+        "songs": [
+            {
+                "song_id": "object_id"
+            }
+        ],
+        "title/name": "string",
+        "subtitle": "string",
+        "description": "string",
+        "cover_img": "string",
+        "created": "date",
+        "like_id": "object_id"
+    },
+
+    "comment":{
+        "_id": "string",
+        "count": "number",
+        "comments": [
+            {
+                "user_id": "object_id",
+                "comment": "string",
+                "commented_at": "date"
+            }
+        ]
+    },
+
+    "like":{
+        "_id": "string",
+        "count": "number",
+        "likes":[
+            {
+                "user_id": "object_id"
+            }
+        ]
+    }
+}
