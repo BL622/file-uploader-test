@@ -1,0 +1,120 @@
+{
+	"info": {
+		"_postman_id": "01693beb-ee08-4324-a409-31526cc4a10e",
+		"name": "Music Album API",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "32825799"
+	},
+	"item": [
+		{
+			"name": "Upload Profile Image",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "X-Token",
+						"value": "",
+						"type": "text",
+						"disabled": true
+					}
+				],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "token",
+							"value": "e0fd60840b0cf5cc5fffda0f9104cf9d5c412cc703879dd54dc99a8e31e5ba3fbc57b94344d6e8a02f0762dcc2cd46192b51afef8aa90301f408d8f6c893f3e4",
+							"type": "text"
+						},
+						{
+							"key": "artist_name",
+							"value": "",
+							"type": "text"
+						},
+						{
+							"key": "profile",
+							"type": "file",
+							"src": []
+						}
+					]
+				},
+				"url": {
+					"raw": "localhost:3001/api/user/:username/editProfile",
+					"host": [
+						"localhost"
+					],
+					"port": "3001",
+					"path": [
+						"api",
+						"user",
+						":username",
+						"editProfile"
+					],
+					"variable": [
+						{
+							"key": "username",
+							"value": "bl622"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Upload Music Album",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "albumCover",
+							"type": "file",
+							"src": []
+						},
+						{
+							"key": "songs",
+							"type": "file",
+							"src": []
+						},
+						{
+							"key": "songs",
+							"type": "file",
+							"src": []
+						},
+						{
+							"key": "album_title",
+							"value": "RAPFASZ",
+							"type": "text"
+						},
+						{
+							"key": "username",
+							"value": "BL622",
+							"type": "text"
+						},
+						{
+							"key": "created_at",
+							"value": "2024-06-11",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "http://localhost:3001/api/upload/music-album",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3001",
+					"path": [
+						"api",
+						"upload",
+						"music-album"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
