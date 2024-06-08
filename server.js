@@ -97,7 +97,7 @@ async function getImageDefaults(req, res) {
 
 const profileImageUploader = new FileUploader({
     fields: [
-        { name: 'profile', type: 'image', allowedTypes: ['image/jpeg', 'image/png'], maxWidth: 1024, maxHeight: 1024, maxSize: 5 * 1024 * 1024 } // 5 MB
+        { name: 'profile', type: 'image', allowedTypes: ['image/jpeg', 'image/png'], maxWidth: 1024, maxHeight: 1024, maxSize: 5 * 1024 * 1024, cropImage: true } // 5 MB
     ]
 });
 

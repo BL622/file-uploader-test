@@ -31,17 +31,24 @@ class FileUploader {
             const metadata = await sharp(file.buffer).metadata();
             if (metadata.width > options.maxWidth || metadata.height > options.maxHeight) {
                 const targetSize = Math.min(options.maxWidth, options.maxHeight);
-                await sharp(file.buffer)
-                    .resize({
-                        width: targetSize,
-                        height: targetSize,
-                        fit: 'cover'
-                    })
-                    .toBuffer()
-                    .then((resizedBuffer) => {
-                        file.buffer = resizedBuffer;
-                    });
-                this.log('Image cropped to 1:1 aspect ratio');
+                const sharpInstance = sharp(file.buffer).resize({
+                    width: targetSize,
+                    height: targetSize,
+                    fit: 'cover'
+                });
+                if (options.cropImage) {
+                    await sharpInstance.toBuffer()
+                        .then((resizedBuffer) => {
+                            file.buffer = resizedBuffer;
+                        });
+                    this.log('Image cropped to 1:1 aspect ratio');
+                } else {
+                    await sharpInstance.toBuffer()
+                        .then((resizedBuffer) => {
+                            file.buffer = resizedBuffer;
+                        });
+                    this.log('Image resized to fit dimensions');
+                }
             }
             this.log('Image dimensions validated successfully');
         } catch (error) {
@@ -67,7 +74,8 @@ class FileUploader {
 
     async validate(filesToValidate) {
         try {
-            let hasSongs = false;
+            let hasAlbumCover = false;
+            let hasAlbumSongs = false;
     
             for (const fieldName in filesToValidate) {
                 const files = filesToValidate[fieldName];
@@ -83,11 +91,12 @@ class FileUploader {
                         await this.validateFileType(file, fieldOptions.allowedTypes);
                         await this.validateFileSize(file, fieldOptions);
     
-                        if (fieldOptions.type === 'image') {
+                        if (fieldOptions.type === 'image' && fieldOptions.name === 'albumCover') {
                             await this.validateImage(file, fieldOptions);
-                        } else if (fieldOptions.type === 'audio') {
+                            hasAlbumCover = true;
+                        } else if (fieldOptions.type === 'audio' && fieldOptions.name === 'songs') {
                             await this.validateAudio(file, fieldOptions);
-                            hasSongs = true;
+                            hasAlbumSongs = true;
                         }
                         this.log(`${fieldName} validated successfully`);
                     } catch (error) {
@@ -97,8 +106,8 @@ class FileUploader {
                 }
             }
     
-            if (!hasSongs) {
-                throw new Error('At least one song must be uploaded');
+            if (hasAlbumCover && !hasAlbumSongs) {
+                throw new Error('At least one song must be uploaded for the album');
             }
     
             this.log('All files validated successfully');
@@ -109,6 +118,9 @@ class FileUploader {
         }
     }
     
+    
+
+
 }
 
 module.exports = FileUploader;
