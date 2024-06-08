@@ -1,12 +1,10 @@
 require('dotenv/config')
-const {log} = require('./log.js')
+const { log } = require('./log.js')
 const crypto = require('crypto')
 const bcrypt = require('bcrypt')
-const sharp = require('sharp')
-const fs = require('fs')
 
-class Request{
-    constructor(req, res){
+class Request {
+    constructor(req, res) {
         this.req = req
         this.res = res
 
@@ -14,14 +12,13 @@ class Request{
         this.headers = req.headers
         this.params = req.params
         this.profile = req.file
-        this.album = req.files
 
         this.didRespond = false
 
         log(2, `API request: ${this.req.path}`)
     }
 
-    validatePostFields(requiredFields, optionalFields=[]){
+    validatePostFields(requiredFields, optionalFields = []) {
         const regex = {
             token: /^[a-f0-9]+$/,
             reset_token: /^[a-f0-9]+$/,
@@ -37,10 +34,10 @@ class Request{
             private: /^(0|1)$/,
         }
 
-        const post = this.body
+        const post = JSON.parse(JSON.stringify(this.body))
         const fields = requiredFields.concat(optionalFields)
         let toReturn = {}
-        for (const field of fields){
+        for (const field of fields) {
             if (!post.hasOwnProperty(field) && optionalFields.includes(field)) continue
             if (!post.hasOwnProperty(field)) {
                 log(0, `Missing required POST field: ${field}`)
@@ -55,81 +52,53 @@ class Request{
         return toReturn
     }
 
-    async validatePostFiles(options) {
-        const results = {}
 
-        for (const fileKey in options) {
-            const file = this.profile
-
-            if (!file) return results[fileKey] = { error: 'No file uploaded or invalid file type.' }
-
-            const { type, width, height, outputPath } = options[fileKey]
-
-            if (type === 'image') {
-                const validMimeTypes = ['image/jpeg', 'image/jpg', 'image/png']
-                if (!validMimeTypes.includes(file.mimetype)) return results[fileKey] = { error: 'Invalid file type.' }
-
-                const image = sharp(file.buffer)
-                const metadata = await image.metadata()
-
-                if (metadata.width > width || metadata.height > height) return results[fileKey] = { error: 'The image should be maximum 1024x1024' }
-
-                const imagePath = outputPath + this.params.imageName.toLowerCase()
-                if (fs.existsSync(imagePath)) fs.unlink(imagePath, (err) => err !== null ? log(0, err) : "")
-                await image.toFile(imagePath)
-
-                results[fileKey] = { path: imagePath }
-            }
-        }
-        return results
-    }
-
-    randomHash(length){
+    randomHash(length) {
         return crypto.randomBytes(length).toString('hex');
     }
-    async generateToken(length=64){
+    async generateToken(length = 64) {
         return this.randomHash(length)
     }
 
-    async passwordHash(password){
+    async passwordHash(password) {
         return bcrypt.hash(password, 10).catch(err => log(1, err))
     }
-    async compareHash(password, hash){
+    async compareHash(password, hash) {
         return bcrypt.compare(password, hash).catch(err => log(1, err))
     }
-    
 
-    
 
-    respondJson(response_code, json={}){
+
+
+    respondJson(response_code, json = {}) {
         if (this.didRespond) return
 
         this.res.status(response_code).json(json)
         this.didRespond = true
     }
-    respond200Success(json={}){
+    respond200Success(json = {}) {
         this.respondJson(200, json)
     }
-    respond200File(filePath){
+    respond200File(filePath) {
         if (this.didRespond) return
         this.res.status(200).sendFile(filePath)
 
         this.didRespond = true
     }
-    respond400MissingPostFields(){
-        this.respondJson(400, {error: 'Missing or invalid POST field(s)'})
+    respond400MissingPostFields() {
+        this.respondJson(400, { error: 'Missing or invalid POST field(s)' })
     }
-    respond400Error(error='Unknown'){
-        this.respondJson(400, {error: error})
+    respond400Error(error = 'Unknown') {
+        this.respondJson(400, { error: error })
     }
-    respond401MissingToken(){
-        this.respondJson(401, {error: 'Missing token'})
+    respond401MissingToken() {
+        this.respondJson(401, { error: 'Missing token' })
     }
-    respond403Auth(){
-        this.respondJson(403, {error: 'Unauthorized'})
+    respond403Auth() {
+        this.respondJson(403, { error: 'Unauthorized' })
     }
-    respond404NotFound(){
-        this.respondJson(404, {error: 'Not found'})
+    respond404NotFound() {
+        this.respondJson(404, { error: 'Not found' })
     }
 
 }
