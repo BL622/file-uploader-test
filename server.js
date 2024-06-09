@@ -59,7 +59,7 @@ const profileImageUploader = new FileUploader({
 app.post('/api/upload/music-album', upload.fields([{ name: 'albumCover', maxCount: 1 }, { name: 'songs', maxCount: 10 }]), async (req, res) => {
     const request = new Request(req, res);
 
-    const requiredFields = ['album_title', 'username', 'created_at'];
+    const requiredFields = ['album_title', 'username', 'created_at', 'artist_name'];
     const validFields = request.validatePostFields(requiredFields);
 
     if (!validFields) {
@@ -79,7 +79,9 @@ app.post('/api/upload/music-album', upload.fields([{ name: 'albumCover', maxCoun
     const created_at = new Date(validFields.created_at);
     const year = created_at.getFullYear();
     const sanitizedAlbumTitle = validFields.album_title.replace(/\W+/g, '_');
-    const albumFolder = `${__dirname}/albums/${validFields.username}-${sanitizedAlbumTitle}-${year}/`;
+    const sanitizedArtistName = validFields.artist_name.replace(/\W+/g, '_');
+    const albumFolder = path.join(__dirname, 'albums', sanitizedArtistName, sanitizedAlbumTitle);
+
 
 
     if (!fs.existsSync(albumFolder)) {

@@ -69,34 +69,79 @@
 					"mode": "formdata",
 					"formdata": [
 						{
-							"key": "albumCover",
-							"type": "file",
-							"src": []
-						},
-						{
-							"key": "songs",
-							"type": "file",
-							"src": []
-						},
-						{
-							"key": "songs",
-							"type": "file",
-							"src": []
-						},
-						{
-							"key": "album_title",
-							"value": "RAPFASZ",
+							"key": "username",
+							"value": "BL622",
 							"type": "text"
 						},
 						{
-							"key": "username",
-							"value": "BL622",
+							"key": "artist_name",
+							"value": "",
+							"type": "text"
+						},
+						{
+							"key": "album_title",
+							"value": "",
 							"type": "text"
 						},
 						{
 							"key": "created_at",
 							"value": "2024-06-11",
 							"type": "text"
+						},
+						{
+							"key": "albumCover",
+							"type": "file",
+							"src": ""
+						},
+						{
+							"key": "songs",
+							"type": "file",
+							"src": ""
+						},
+						{
+							"key": "songs",
+							"type": "file",
+							"src": ""
+						},
+						{
+							"key": "songs",
+							"type": "file",
+							"src": ""
+						},
+						{
+							"key": "songs",
+							"type": "file",
+							"src": ""
+						},
+						{
+							"key": "songs",
+							"type": "file",
+							"src": ""
+						},
+						{
+							"key": "songs",
+							"type": "file",
+							"src": ""
+						},
+						{
+							"key": "songs",
+							"type": "file",
+							"src": ""
+						},
+						{
+							"key": "songs",
+							"type": "file",
+							"src": ""
+						},
+						{
+							"key": "songs",
+							"type": "file",
+							"src": ""
+						},
+						{
+							"key": "songs",
+							"type": "file",
+							"src": ""
 						}
 					]
 				},
