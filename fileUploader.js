@@ -26,7 +26,6 @@ class FileUploader {
         log(2, 'Validating image dimensions')
 
         try {
-
             const metadata = await sharp(file.buffer).metadata()
             if (options.cropImage && (metadata.width > options.maxWidth || metadata.height > options.maxHeight)) {
                 const targetSize = Math.min(options.maxWidth, options.maxHeight)
@@ -39,10 +38,8 @@ class FileUploader {
                 const croppedBuffer = await sharpInstance.toBuffer()
                 file.buffer = croppedBuffer
                 log(2, 'Image cropped to 1:1 aspect ratio')
-            } 
-            
+            }
             else if (!options.cropImage && (metadata.width > options.maxWidth || metadata.height > options.maxHeight)) return { error: 'Image dimensions exceed maximum allowed dimensions. CropImage option is false. Image cannot be uploaded.' }
-            
             else log(2, 'Image dimensions within maximum allowed dimensions. No need for cropping')
 
             log(2, 'Image dimensions validated successfully');
@@ -51,9 +48,6 @@ class FileUploader {
             return { error: `Invalid image file: ${error.message}` }
         }
     }
-
-
-
 
     async validateAudio(file, options) {
         log(2, 'Validating audio duration and format')
@@ -71,6 +65,43 @@ class FileUploader {
             return { error: `Invalid audio file: ${error.message}` };
         }
     }
+
+    async validateLrc(file, options) {
+        try {
+            const content = file.buffer.toString('utf-8')
+            if (content.trim().length === 0) return { error: 'LRC file is empty' }
+
+            const lines = content.split('\n')
+            const timestampPattern = /^\[\d{2}:\d{2}\.\d{2,3}\]/
+
+            let allLinesValid = true
+            let validationErrors = []
+
+            let startIndex = lines.findIndex(line => timestampPattern.test(line));
+            if (startIndex === -1) return { error: 'LRC file does not contain valid timestamp lines' }
+
+            for (let i = startIndex; i < lines.length; i++) {
+
+                const isValidLine = timestampPattern.test(lines[i])
+                if (!isValidLine) {
+                    allLinesValid = false
+                    validationErrors.push({ error: `Line ${i + 1} is invalid: ${lines[i].trim()}` })
+                }
+
+            }
+
+            if (!allLinesValid) return { error: 'LRC file contains invalid format', details: validationErrors }
+
+            log(2, 'LRC file validated successfully')
+            return true
+        } catch (error) {
+            return { error: `Error while validating LRC file: ${error.message}` }
+        }
+    }
+
+
+
+
 
     async validate(filesToValidate) {
         let validationErrors = []
@@ -105,19 +136,26 @@ class FileUploader {
 
                     const imageValidation = await this.validateImage(file, fieldOptions)
                     if (imageValidation.error) validationErrors.push(imageValidation)
-
+                    continue
                 }
                 else if (fieldOptions.type === 'audio') {
 
                     const audioValidation = await this.validateAudio(file, fieldOptions)
                     if (audioValidation.error) validationErrors.push(audioValidation)
-
+                    continue
                 }
+                else if (fieldOptions.type === 'lrc') {
+
+                    const lrcValidation = await this.validateLrc(file)
+                    if (lrcValidation.error) validationErrors.push(lrcValidation)
+                    continue
+                }
+
                 log(2, `${fieldName} validated successfully`)
             }
         }
 
-        if (requiresSongs && !filesToValidate['songs'])validationErrors.push({ error: 'At least one song must be uploaded for the album' })
+        if (requiresSongs && !filesToValidate['songs']) validationErrors.push({ error: 'At least one song must be uploaded for the album' })
 
         if (validationErrors.length > 0) return validationErrors
 

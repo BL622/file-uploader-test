@@ -31,7 +31,7 @@ const FileUploader = require('./fileUploader.js');
 const upload = multer({ storage: multer.memoryStorage() });
 
 app.post('/api/user/:username/editProfile', upload.single('profile'), (req, res) => postUser(req, res))
-app.post('/api/upload/music-album', upload.fields([{ name: 'albumCover', maxCount: 1 }, { name: 'songs', maxCount: 10 }]), (req, res) => postAlbums(req, res))
+app.post('/api/upload/music-album', upload.fields([{ name: 'albumCover', maxCount: 1 }, { name: 'songs', maxCount: 10 }, { name: 'lyrics', maxCount: 10 }]), (req, res) => postAlbums(req, res))
 
 const profileImageUploader = new FileUploader({
     fields: [
@@ -43,7 +43,8 @@ const profileImageUploader = new FileUploader({
 const albumUploader = new FileUploader({
     fields: [
         { name: 'albumCover', type: 'image', allowedTypes: ['image/jpeg', 'image/png'], maxWidth: 1024, maxHeight: 1024, maxSize: 5 * 1024 * 1024/* 5 MB*/, cropImage: false },
-        { name: 'songs', type: 'audio', allowedTypes: ['audio/mpeg', 'audio/wav'], maxDuration: 300, maxSize: 50 * 1024 * 1024 /* 50 MB*/ }
+        { name: 'songs', type: 'audio', allowedTypes: ['audio/mpeg', 'audio/wav'], maxDuration: 300, maxSize: 50 * 1024 * 1024 /* 50 MB*/ },
+        { name: 'lyrics', type: 'lrc', allowedTypes: ['application/octet-stream'], maxSize: 500 * 1024 /* 500 KB */ }
     ]
 })
 
@@ -77,7 +78,8 @@ async function postAlbums(req, res) {
 
     const filesToValidate = {
         albumCover: req.files['albumCover'] ? [req.files['albumCover'][0]] : [],
-        songs: req.files['songs'] || []
+        songs: req.files['songs'] || [],
+        lyrics: req.files['lyrics'] || []
     }
 
     const validation = await albumUploader.validate(filesToValidate);
@@ -87,22 +89,35 @@ async function postAlbums(req, res) {
     const sanitizedAlbumTitle = post.album_title.replace(/\W+/g, '_')
     const sanitizedArtistName = post.artist_name.replace(/\W+/g, '_')
     const albumFolder = path.join(__dirname, 'albums', sanitizedArtistName, sanitizedAlbumTitle + '-' + created_at.getFullYear())
+    const coverFolder = path.join(__dirname, 'images', 'albumCovers', sanitizedArtistName)
+    const lyricsFolder = path.join(__dirname, 'lyrics', sanitizedArtistName, sanitizedAlbumTitle + '-' + created_at.getFullYear())
 
     if (!fs.existsSync(albumFolder)) fs.mkdirSync(albumFolder, { recursive: true })
+    if (!fs.existsSync(coverFolder)) fs.mkdirSync(coverFolder, { recursive: true })
+    if (!fs.existsSync(lyricsFolder)) fs.mkdirSync(lyricsFolder, { recursive: true })
 
     if (req.files['albumCover']) {
         const coverFile = req.files['albumCover'][0];
-        const coverFileName = `${sanitizedAlbumTitle}_cover${path.extname(coverFile.originalname)}`;
-        const coverFilePath = path.join(albumFolder, coverFileName);
-        fs.writeFileSync(coverFilePath, coverFile.buffer);
+        const coverFileName = `${sanitizedAlbumTitle}_cover${path.extname(coverFile.originalname)}`
+        const coverFilePath = path.join(coverFolder, coverFileName)
+        fs.writeFileSync(coverFilePath, coverFile.buffer)
     }
 
     if (req.files['songs']) {
         const songs = req.files['songs'];
         songs.forEach((songFile, index) => {
-            const songFileName = `song_${index + 1}${path.extname(songFile.originalname)}`;
-            const songFilePath = path.join(albumFolder, songFileName);
-            fs.writeFileSync(songFilePath, songFile.buffer);
+            const songFileName = `song_${index + 1}${path.extname(songFile.originalname)}`
+            const songFilePath = path.join(albumFolder, songFileName)
+            fs.writeFileSync(songFilePath, songFile.buffer)
+        });
+    }
+
+    if (req.files['lyrics']) {
+        const lyricsFiles = req.files['lyrics'];
+        lyricsFiles.forEach((lyricsFile, index) => {
+            const lyricsFileName = `lyrics_${index + 1}${path.extname(lyricsFile.originalname)}`
+        const lyricsFilePath = path.join(lyricsFolder, lyricsFileName)
+        fs.writeFileSync(lyricsFilePath, lyricsFile.buffer)
         });
     }
 
