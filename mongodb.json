@@ -1,0 +1,163 @@
+{
+    "userSchema": {
+        "_id": "ObjectId",
+        "username": "String",
+        "email": "String",
+        "password": "String",
+        "profile_img": "String",
+        "playlists": [
+            {
+                "playlist_id": {
+                    "type": "ObjectId",
+                    "ref": "Playlist"
+                }
+            }
+        ],
+        "is_artist": "Boolean",
+        "artist_name": "String",
+        "followers": [
+            {
+                "type": "ObjectId",
+                "ref": "User"
+            }
+        ],
+        "following": [
+            {
+                "type": "ObjectId",
+                "ref": "User"
+            }
+        ]
+    },
+
+    "playlistSchema": {
+        "_id": "ObjectId",
+        "owner": {
+            "type": "ObjectId",
+            "ref": "User"
+        },
+        "is_public": "Boolean",
+        "songs": [
+            {
+                "type": "ObjectId",
+                "ref": "Song"
+            }
+        ],
+        "title": "String",
+        "subtitle": "String",
+        "description": "String",
+        "cover_img": "String",
+        "created_at": "Date",
+        "like_id": {
+            "type": "ObjectId",
+            "ref": "Like"
+        }
+    },
+
+    "albumSchema": {
+        "_id": "ObjectId",
+        "creators": [
+            {
+                "type": "ObjectId",
+                "ref": "User"
+            }
+        ],
+        "songs": [
+            {
+                "type": "ObjectId",
+                "ref": "Song"
+            }
+        ],
+        "cover_img": "String",
+        "created_at": "Date",
+        "title": "String",
+        "subtitle": "String",
+        "description": "String",
+        "genre": {
+            "type": "ObjectId",
+            "ref": "Genre"
+        },
+        "subgenres": [
+            {
+                "type": "ObjectId",
+                "ref": "Subgenre"
+            }
+        ],
+        "like_id": {
+            "type": "ObjectId",
+            "ref": "Like"
+        }
+    },
+
+    "songSchema": {
+        "_id": "ObjectId",
+        "album_id": {
+            "type": "ObjectId",
+            "ref": "Album"
+        },
+        "song_number": "Int",
+        "title": "String",
+        "length": "Int",
+        "file_path": "String",
+        "creators": [
+            {
+                "type": "ObjectId",
+                "ref": "User"
+            }
+        ],
+        "comment_id": {
+            "type": "ObjectId",
+            "ref": "Comment"
+        },
+        "like_id": {
+            "type": "ObjectId",
+            "ref": "Like"
+        },
+        "streamings": "Int",
+        "has_lyrics": "Boolean"
+    },
+
+
+    "genreSchema": {
+        "_id": "ObjectId",
+        "type": "String",
+        "subgenres": [
+            {
+                "type": "ObjectId",
+                "ref": "Subgenre"
+            }
+        ]
+    },
+
+    "subgenreSchema": {
+        "_id": "ObjectId",
+        "type": "String"
+    },
+
+    "commentSchema": {
+        "_id": "ObjectId",
+        "count": "Int",
+        "comments": [
+            {
+                "user_id": {
+                    "type": "ObjectId",
+                    "ref": "User"
+                },
+                "comment": "String",
+                "timestamp": "Date"
+            }
+        ]
+    },
+    
+    "likeSchema": {
+        "_id": "ObjectId",
+        "count": "Int",
+        "likes": [
+            {
+                "user_id": {
+                    "type": "ObjectId",
+                    "ref": "User"
+                }
+            }
+        ]
+    }
+}
